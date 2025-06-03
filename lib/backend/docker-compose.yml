@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  backend:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      TZ: Asia/Bangkok
+    depends_on:
+      - db
+    command: ["node", "server.js"]
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      TZ: Asia/Bangkok
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: --default-time-zone='+07:00'
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      TZ: Asia/Bangkok
+    depends_on:
+      - db
+
+volumes:
+  mysql-data:
