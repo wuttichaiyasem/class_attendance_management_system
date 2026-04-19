@@ -1,79 +1,58 @@
-import 'package:class_attendance_management_system/services/advisor_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MenuScreen extends StatefulWidget {
-  const MenuScreen({super.key});
+class AdminMenuScreen extends StatefulWidget {
+  const AdminMenuScreen({super.key});
 
   @override
-  State<MenuScreen> createState() => _MenuScreenState();
+  State<AdminMenuScreen> createState() => _AdminMenuScreenState();
 }
 
-class _MenuScreenState extends State<MenuScreen> {
-  bool isAdvisor = false;
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAdvisorStatus();
-  }
-
-  Future<void> _checkAdvisorStatus() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
-      if (token == null) return;
-
-      final result = await AdvisorService.checkIfAdvisor(token);
-
-      setState(() {
-        isAdvisor = result;
-        isLoading = false;
-      });
-    } catch (e) {
-      print("Error checking advisor status: $e");
-      setState(() => isLoading = false);
-    }
-  }
-
+class _AdminMenuScreenState extends State<AdminMenuScreen> {
   @override
   Widget build(BuildContext context) {
     final gridItems = [
       {
-        'label': 'เช็คชื่อนักศึกษา',
-        'image': 'assets/icons/check_student.png',
-        'route': '/select-subject-class'
+        'label': 'เพิ่มอาจารย์',
+        'image': 'assets/icons/add_teacher.png',
+        'route': '/admin_add_teacher'
       },
       {
-        'label': 'ประวัติการเช็คชื่อ',
-        'image': 'assets/icons/history.png',
-        'route': '/history'
+        'label': 'เพิ่มนักศึกษา',
+        'image': 'assets/icons/add_student.png',
+        'route': '/admin_add_student'
+      },
+      {
+        'label': 'เพิ่มรายวิชา',
+        'image': 'assets/icons/add_subject.png',
+        'route': '/admin_add_subject'
       },
       {
         'label': 'การบ้าน',
         'image': 'assets/icons/homework.png',
-        'route': '/homework'
+        'route': '/admin_homework'
+      },
+      {
+        'label': 'ประวัติการเช็คชื่อ',
+        'image': 'assets/icons/history.png',
+        'route': '/admin_history'
       },
       {
         'label': 'ค่าเทอม',
         'image': 'assets/icons/tuition.png',
-        'route': '/tuition'
+        'route': '/admin_tuition'
       },
       {
         'label': 'ตารางสอน',
         'image': 'assets/icons/schedule.png',
-        'route': '/schedule'
+        'route': '/admin_schedule'
+      },
+      {
+        'label': 'สรุป',
+        'image': 'assets/icons/research.png',
+        'route': '/admin_summarize_menu'
       },
     ];
-
-    if (isAdvisor) {
-      gridItems.add({
-        'label': 'อาจารย์ที่ปรึกษา',
-        'image': 'assets/icons/advisor.png',
-        'route': '/advisor'
-      });
-    }
 
     return Scaffold(
       backgroundColor: Color(0xffF3F3F3),
@@ -181,7 +160,7 @@ class _MenuScreenState extends State<MenuScreen> {
                     child: Column(
                       children: [
                         Text(
-                          'เมนู',
+                          'จัดการข้อมูล',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,

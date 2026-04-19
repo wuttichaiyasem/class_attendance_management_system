@@ -1,4 +1,6 @@
+import 'package:class_attendance_management_system/screens/admin_menu_screen.dart';
 import 'package:class_attendance_management_system/screens/menu_screen.dart';
+import 'package:class_attendance_management_system/screens/student_menu_screen.dart';
 import 'package:class_attendance_management_system/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,9 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await _ePassportLogin.login(username, password);
 
       if (response['status'] == 'ok') {
-        print(response['username']);
-        print(response['name']);
-        print(response['email']);
+        print(response);
 
         final backendResponse = await _apiService.saveUser(
           response['username'],
@@ -55,17 +55,32 @@ class _LoginScreenState extends State<LoginScreen> {
           response['email'],
         );
 
-        // 👇 ดึง token ที่ backend ส่งกลับมา
         final token = backendResponse['token'];
-
-        // ✅ เก็บ token ลง SharedPreferences
         final prefs = await SharedPreferences.getInstance();
+        final user = backendResponse['user'];
+        final int userRole = user['role'];
         await prefs.setString('user_id', response['username']);
         await prefs.setString('jwt_token', token);
+        await prefs.setInt('role', userRole);
+
+        Widget nextScreen;
+        switch (userRole) {
+          case 1:
+            nextScreen = AdminMenuScreen();
+            break;
+          case 2:
+            nextScreen = MenuScreen();
+            break;
+          case 4:
+            nextScreen = StudentMenuScreen();
+            break;
+          default:
+            nextScreen = MenuScreen();
+        }
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MenuScreen()),
+          MaterialPageRoute(builder: (context) => nextScreen),
         );
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Login สำเร็จ'),

@@ -30,6 +30,7 @@ class _SelectSubjectClassScreenState extends State<SelectSubjectClassScreen> {
       if (token == null) throw Exception('No token found');
 
       final data = await SubjectService.getMySubjects(token);
+      print(data);
       setState(() {
         yearData = List<Map<String, dynamic>>.from(data);
         isLoading = false;
@@ -142,13 +143,18 @@ class _SelectSubjectClassScreenState extends State<SelectSubjectClassScreen> {
                                 ),
                                 children: [
                                   ...year['subjects'].map<Widget>((subject) {
-                                    String subjectTitle ='${subject['subject_name']} กลุ่มที่ ${subject['group']}';
-                                    String date =subject['date_this_week'] ?? 'ไม่ระบุ';
+                                    String subjectTitle =
+                                        '${subject['subject_name']} กลุ่มที่ ${subject['group']}';
+                                    String date =
+                                        subject['date_this_week'] ?? 'ไม่ระบุ';
+                                    String dayOfWeek =
+                                        subject['day_of_week'] ?? 'ไม่ระบุ';
                                     String time = subject['time'] ?? 'ไม่ระบุ';
                                     return Column(
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.only(left:10.0),
+                                          padding:
+                                              const EdgeInsets.only(left: 10.0),
                                           child: ListTile(
                                             tileColor: Colors.white,
                                             title: Text(
@@ -165,10 +171,12 @@ class _SelectSubjectClassScreenState extends State<SelectSubjectClassScreen> {
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       SubjectDetailScreen(
-                                                        classId: subject['class_id'],
-                                                        subjectName: subjectTitle,
-                                                        date: date,
-                                                        time: time,
+                                                    classId:
+                                                        subject['class_id'],
+                                                    subjectName: subjectTitle,
+                                                    date: date,
+                                                    dayOfWeek: dayOfWeek,
+                                                    time: time,
                                                   ),
                                                 ),
                                               );

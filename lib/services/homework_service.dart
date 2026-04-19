@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-final String baseUrl = 'http://192.168.196.87:3000';
+final String baseUrl = 'http://localhost:3000';
 
 class HomeworkService {
   static Future<List<Map<String, dynamic>>> fetchSubjects(String token) async {
@@ -32,8 +32,6 @@ class HomeworkService {
       final data = json.decode(response.body);
       final List homeworkList = data['homeworkList'];
 
-
-
       return homeworkList.map<Map<String, dynamic>>((item) {
         // แปลงวันที่โดยใช้ DateTime และ timezone ที่ถูกต้อง
         DateTime dueDate = DateTime.parse(item['due_date']).toLocal();
@@ -46,7 +44,6 @@ class HomeworkService {
           'dueDate': dueDate.toIso8601String().split('T')[0],
         };
       }).toList();
-
     } else {
       throw Exception('Failed to load homework');
     }
@@ -76,8 +73,10 @@ class HomeworkService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> fetchStudentsByHomeworkId(String homeworkId) async {
-    final response = await http.get(Uri.parse('$baseUrl/homework/$homeworkId/students'));
+  static Future<List<Map<String, dynamic>>> fetchStudentsByHomeworkId(
+      String homeworkId) async {
+    final response =
+        await http.get(Uri.parse('$baseUrl/homework/$homeworkId/students'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -90,7 +89,8 @@ class HomeworkService {
   static Future<void> submitHomework({
     required String homeworkId,
     required String submittedBy,
-    required List<Map<String, dynamic>> records, // student_id + submitted (bool)
+    required List<Map<String, dynamic>>
+        records, // student_id + submitted (bool)
   }) async {
     final url = Uri.parse('$baseUrl/homework/submit');
 
@@ -158,10 +158,10 @@ class HomeworkService {
     try {
       print('\n=== Starting Auto Homework Check ===');
       print('Current time: ${DateTime.now().toLocal()}');
-      
+
       // First check immediately for past homework
       await checkMissingHomework();
-      
+
       // Then start periodic checks
       while (true) {
         await Future.delayed(Duration(minutes: 1));
@@ -189,6 +189,26 @@ class HomeworkService {
     } catch (e) {
       print('Error getting server time: $e');
       throw e;
+    }
+  }
+}
+
+class AdminHomeworkService {
+  static Future<List<Map<String, dynamic>>> fetchSubjects(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/homework/admin/classes'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body);
+      return jsonData
+          .map<Map<String, dynamic>>((e) => Map<String, dynamic>.from(e))
+          .toList();
+    } else {
+      throw Exception('Failed to load subjects');
     }
   }
 }

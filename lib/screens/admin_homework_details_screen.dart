@@ -3,21 +3,28 @@ import 'package:class_attendance_management_system/screens/assignment_detail_scr
 import 'package:class_attendance_management_system/services/homework_service.dart';
 import 'package:flutter/material.dart';
 
-class HomeworkDetailScreen extends StatefulWidget {
+class AdminHomeworkDetailScreen extends StatefulWidget {
   final String classId;
   final String subjectName;
+  final String teacherName;
+  final int year;
+  final int group;
 
-  const HomeworkDetailScreen({
-    Key? key,
-    required this.classId,
-    required this.subjectName,
-  }) : super(key: key);
+  const AdminHomeworkDetailScreen(
+      {Key? key,
+      required this.classId,
+      required this.subjectName,
+      required this.teacherName,
+      required this.year,
+      required this.group})
+      : super(key: key);
 
   @override
-  State<HomeworkDetailScreen> createState() => _HomeworkDetailScreenState();
+  State<AdminHomeworkDetailScreen> createState() =>
+      _AdminHomeworkDetailScreenState();
 }
 
-class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
+class _AdminHomeworkDetailScreenState extends State<AdminHomeworkDetailScreen> {
   List<Map<String, dynamic>> assignment = [];
   bool isLoading = true;
 
@@ -105,30 +112,118 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
+            child: Column(
               children: [
-                Text(
-                  'ชื่อวิชา : ',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'ชื่อวิชา : ',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xffEAEAEA),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: AutoSizeText(
+                          widget.subjectName,
+                          style: TextStyle(fontSize: 18),
+                          maxLines: 1,
+                          minFontSize: 12,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xffEAEAEA),
-                      borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Text(
+                      'ผู้สอน : ',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: AutoSizeText(
-                      widget.subjectName,
-                      style: TextStyle(fontSize: 18),
-                      maxLines: 1,
-                      minFontSize: 12,
-                      overflow: TextOverflow.ellipsis,
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xffEAEAEA),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: AutoSizeText(
+                          widget.teacherName,
+                          style: TextStyle(fontSize: 18),
+                          maxLines: 1,
+                          minFontSize: 12,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Text(
+                      'ปี : ',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xffEAEAEA),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: AutoSizeText(
+                          '${widget.year}',
+                          style: TextStyle(fontSize: 18),
+                          maxLines: 1,
+                          minFontSize: 12,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    Text(
+                      'ห้อง : ',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xffEAEAEA),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: AutoSizeText(
+                          '${widget.group}',
+                          style: TextStyle(fontSize: 18),
+                          maxLines: 1,
+                          minFontSize: 12,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String baseUrl = 'http://192.168.196.87:3000';
+  final String baseUrl = 'http://localhost:3000';
 
-  Future<Map<String, dynamic>> saveUser(String username, String name, String email) async {
+  Future<Map<String, dynamic>> saveUser(
+      String username, String name, String email) async {
     final response = await http.post(
       Uri.parse('$baseUrl/auth/login'),
       headers: {'Content-Type': 'application/json'},
@@ -21,7 +22,6 @@ class ApiService {
       throw Exception('Failed to save user');
     }
   }
-
 }
 
 class ePassportLogin {

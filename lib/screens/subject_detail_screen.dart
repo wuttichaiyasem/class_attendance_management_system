@@ -8,6 +8,7 @@ class SubjectDetailScreen extends StatefulWidget {
   final String classId;
   final String subjectName;
   final String date;
+  final String dayOfWeek;
   final String time;
 
   const SubjectDetailScreen({
@@ -15,6 +16,7 @@ class SubjectDetailScreen extends StatefulWidget {
     required this.classId,
     required this.subjectName,
     required this.date,
+    required this.dayOfWeek,
     required this.time,
   }) : super(key: key);
 
@@ -27,23 +29,25 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
   List<Map<String, String>> students = [];
   bool isAutoCheckingActive = false;
 
-  String formatThaiDate(String isoDate) {
+  String formatThaiDate(String isoDate, String dayOfWeek) {
     final date = DateTime.parse(isoDate);
-    final thaiDays = [
-      'จันทร์',
-      'อังคาร',
-      'พุธ',
-      'พฤหัสบดี',
-      'ศุกร์',
-      'เสาร์',
-      'อาทิตย์'
-    ];
+
+    final thaiDaysMap = {
+      'Monday': 'จันทร์',
+      'Tuesday': 'อังคาร',
+      'Wednesday': 'พุธ',
+      'Thursday': 'พฤหัสบดี',
+      'Friday': 'ศุกร์',
+      'Saturday': 'เสาร์',
+      'Sunday': 'อาทิตย์',
+    };
+
     final buddhistYear = date.year + 543;
-    final dayIndex = date.weekday - 1;
-    final dayName = thaiDays[dayIndex];
     final dateFormatted = DateFormat('dd/MM').format(date);
 
-    return '$dayName  $dateFormatted/$buddhistYear';
+    final thaiDay = thaiDaysMap[dayOfWeek] ?? '';
+
+    return '$thaiDay  $dateFormatted/$buddhistYear';
   }
 
   String formatShortTimeRange(String timeRange) {
@@ -95,7 +99,7 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
   void initState() {
     super.initState();
     fetchStudents();
-    _startAutoCheck();
+    _markAllPresent();
   }
 
   @override
@@ -104,26 +108,41 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
     super.dispose();
   }
 
-  Future<void> _startAutoCheck() async {
-    if (isAutoCheckingActive) return;
-    
-    isAutoCheckingActive = true;
+  Future<void> _markAllPresent() async {
     final timeParts = widget.time.split(' - ');
     final startTime = timeParts[0];
     final endTime = timeParts[1];
 
+    final prefs = await SharedPreferences.getInstance();
+    final createdBy = prefs.getString('user_id') ?? '';
+
+    if (createdBy.isEmpty) {
+      print('ไม่พบ user_id');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('ไม่พบข้อมูลผู้ใช้'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+      return;
+    }
+
     try {
-      await AttendanceService.startAutoAttendanceCheck(
-        widget.classId,
-        widget.date,
-        startTime,
-        endTime,
+      await AttendanceService.markAllPresent(
+        classId: widget.classId,
+        date: widget.date,
+        startTime: startTime,
+        endTime: endTime,
+        createdBy: createdBy,
       );
     } catch (e) {
-      print('Error starting auto check: $e');
-      // แสดง error message ถ้าต้องการ
-    } finally {
-      isAutoCheckingActive = false;
+      print('เกิดข้อผิดพลาด: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('บันทึกไม่สำเร็จ'),
+          duration: Duration(seconds: 1),
+        ),
+      );
     }
   }
 
@@ -147,7 +166,7 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
         selectedStatuses.clear();
         for (var student in fetchedStudents) {
           final studentId = student['id'] ?? '';
-          final rawStatus = student['status'] ?? 'เลือก';
+          final rawStatus = student['status'] ?? 'มาเรียน';
           String displayStatus;
 
           switch (rawStatus) {
@@ -167,7 +186,7 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
               displayStatus = 'ลาป่วย';
               break;
             default:
-              displayStatus = 'เลือก';
+              displayStatus = 'มาเรียน';
           }
 
           selectedStatuses[studentId] = displayStatus;
@@ -189,8 +208,10 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
     if (createdBy.isEmpty) {
       print('ไม่พบ user_id');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('ไม่พบข้อมูลผู้ใช้'),
-          duration: Duration(seconds: 1),),
+        SnackBar(
+          content: Text('ไม่พบข้อมูลผู้ใช้'),
+          duration: Duration(seconds: 1),
+        ),
       );
       return;
     }
@@ -326,7 +347,7 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
                         padding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         child: AutoSizeText(
-                          formatThaiDate(widget.date),
+                          formatThaiDate(widget.date, widget.dayOfWeek),
                           style: TextStyle(fontSize: 18),
                           maxLines: 1,
                           minFontSize: 12,
